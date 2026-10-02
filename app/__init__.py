@@ -2,6 +2,8 @@ from flask import Flask
 from .config import config_map
 from .extensions import db, migrate
 from flask_restful import Api
+from .api import PacientesController, PacienteController
+from .models import *
 
 def create_app(env = "development"):
     app = Flask(__name__)
@@ -16,5 +18,9 @@ def create_app(env = "development"):
     @app.route('/')
     def inicio():
         return "Hola, flask"
+
+    api.add_resource(PacientesController, '/pacientes')
+    api.add_resource(PacienteController, '/pacientes/<int:id>')
+    
 
     return app
