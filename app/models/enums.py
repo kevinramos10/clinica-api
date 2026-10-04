@@ -3,3 +3,8 @@ from enum import Enum
 class SexoPersona(Enum):
     M = 'M'
     F = 'F'
+
+class EstadoMedico(Enum):
+    Activo = "Activo"
+    Inactivo = "Inactivo"
+    De_Vacaciones = "De Vacaciones"

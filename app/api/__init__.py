@@ -1,1 +1,4 @@
 from .pacientes import PacientesController, PacienteController
+from .medicos import MedicosController, MedicoController
+from .especialidades import EspecialidadesController, EspecialidadController
+from .medicos_especialidades import MedicosEspecialidadesController
