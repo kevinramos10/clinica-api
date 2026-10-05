@@ -2,7 +2,7 @@ from flask_restful import Resource, request
 from app.extensions import db
 from app.models import MedicoEspecialidad, Especialidad
 from app.schemas import MedicosEspecialidadesSchema
-from pydantic import ValidationError
+from pydantic import ValidationError, TypeAdapter
 
 class MedicosEspecialidadesController(Resource):
 
@@ -55,4 +55,25 @@ class MedicosEspecialidadesController(Resource):
                 'message':'Error al asignar las especialidades al medico',
                 'content': error.errors()
             }
+
+class MedicoEspecialidadController(Resource):
+
+    def delete(self, idMedico, idEspecialidad):
+        medicoEspecialidad = db.session.query(MedicoEspecialidad).filter(
+            MedicoEspecialidad.medicoId == idMedico,
+            MedicoEspecialidad.especialidadId == idEspecialidad            
+            ).first()
+
+        if not medicoEspecialidad:
+            return{
+                "message": "La relación médico-especialidad no existe"
+            }, 404
+
+        db.session.delete(medicoEspecialidad)
+        db.session.commit()
+
+        return{
+            "message": "Especialidad eliminada del médico exitosamente"
+        }
+
 
