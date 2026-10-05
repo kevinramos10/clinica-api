@@ -5,6 +5,7 @@ from app.schemas import MedicoSchema
 from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoMedico
 from sqlalchemy import or_
+from datetime import date
 
 class MedicosController(Resource):
 
@@ -105,5 +106,41 @@ class MedicoController(Resource):
 
         return{
             "message": "Medico eliminado exitosamente"
+        }
+
+    def get(self, id):
+
+        medicoEncontrado = db.session.query(Medico).filter(Medico.id == id).first()
+
+        if not medicoEncontrado:
+            return{
+                'message': 'Medico con ese id no existe'
+            }, 404
+
+        especialidades = []
+
+        for medicoEspecilidad in medicoEncontrado.medico_especialidades:
+            especialidades.append({
+                "id": medicoEspecilidad.especialidad.id,
+                "nombre": medicoEspecilidad.especialidad.nombre
+            })
+
+        resultado = {
+            "id": medicoEncontrado.id,
+            "dni": medicoEncontrado.dni,
+            "colegiatura": medicoEncontrado.colegiatura,
+            "nombre": medicoEncontrado.nombre,
+            "apellidoPaterno": medicoEncontrado.apellidoPaterno,
+            "apellidoMaterno": medicoEncontrado.apellidoMaterno,
+            "sexo": medicoEncontrado.sexo.value,
+            "telefono": medicoEncontrado.telefono,
+            "correo": medicoEncontrado.correo,
+            "fechaNacimiento": date.strftime(medicoEncontrado.fechaNacimiento, "%Y-%m-%d") ,
+            "estado": medicoEncontrado.estado.value,
+            "especialidades":especialidades
+        }
+
+        return{
+            'content': resultado
         }
         
