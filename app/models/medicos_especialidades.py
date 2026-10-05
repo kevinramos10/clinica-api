@@ -23,8 +23,8 @@ class MedicoEspecialidad(db.Model):
         type_=types.Integer
     )
 
-    medicos = relationship('Medico', backref='medico_especialidad')
+    medico = relationship('Medico', backref='medico_especialidades')
 
-    especialidadese = relationship('Especialidad', backref='medico_especialidad')
+    especialidad = relationship('Especialidad', backref='medico_especialidades')
 
     
