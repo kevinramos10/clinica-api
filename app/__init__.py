@@ -29,10 +29,10 @@ def create_app(env = "development"):
 
     #Especialidad
     api.add_resource(EspecialidadesController, '/especialidades')
-    api.add_resource(EspecialidadController, '/especialidades/<int:id>')
+    api.add_resource(EspecialidadController, '/especialidades/<uuid:id>')
 
     #Medico-Especialidad
     api.add_resource(MedicosEspecialidadesController, '/medico-especialidades')
-    api.add_resource(MedicoEspecialidadController, '/medico-especialidad/<int:idMedico>/<int:idEspecialidad>')
+    api.add_resource(MedicoEspecialidadController, '/medico-especialidad/<uuid:idMedico>/<uuid:idEspecialidad>')
     
     return app
