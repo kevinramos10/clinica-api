@@ -126,7 +126,7 @@ class MedicoController(Resource):
             })
 
         resultado = {
-            "id": medicoEncontrado.id,
+            "id": str(medicoEncontrado.id),
             "dni": medicoEncontrado.dni,
             "colegiatura": medicoEncontrado.colegiatura,
             "nombre": medicoEncontrado.nombre,
