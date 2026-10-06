@@ -121,7 +121,7 @@ class MedicoController(Resource):
 
         for medicoEspecilidad in medicoEncontrado.medico_especialidades:
             especialidades.append({
-                "id": medicoEspecilidad.especialidad.id,
+                "id": str(medicoEspecilidad.especialidad.id),
                 "nombre": medicoEspecilidad.especialidad.nombre
             })
 
@@ -137,7 +137,7 @@ class MedicoController(Resource):
             "correo": medicoEncontrado.correo,
             "fechaNacimiento": date.strftime(medicoEncontrado.fechaNacimiento, "%Y-%m-%d") ,
             "estado": medicoEncontrado.estado.value,
-            "especialidades":especialidades
+            "especialidades": especialidades
         }
 
         return{

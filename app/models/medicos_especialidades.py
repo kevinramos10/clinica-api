@@ -21,7 +21,7 @@ class MedicoEspecialidad(db.Model):
         nullable=False,
         name='especialidad_id',
         primary_key=True,
-        type_=types.Integer
+        type_=types.UUID()
     )
 
     medico = relationship('Medico', backref='medico_especialidades')
