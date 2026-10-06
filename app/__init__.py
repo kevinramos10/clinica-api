@@ -25,7 +25,7 @@ def create_app(env = "development"):
 
     #Medicos
     api.add_resource(MedicosController, '/medicos')
-    api.add_resource(MedicoController, '/medicos/<int:id>')
+    api.add_resource(MedicoController, '/medicos/<uuid:id>')
 
     #Especialidad
     api.add_resource(EspecialidadesController, '/especialidades')

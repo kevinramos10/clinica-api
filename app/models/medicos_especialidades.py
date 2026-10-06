@@ -1,6 +1,7 @@
 from app.extensions import db
 from sqlalchemy import Column, types, ForeignKey
 from sqlalchemy.orm import relationship
+from uuid import uuid4
 
 class MedicoEspecialidad(db.Model):
 
@@ -12,7 +13,7 @@ class MedicoEspecialidad(db.Model):
         nullable=False,
         name='medico_id',
         primary_key=True,
-        type_=types.Integer
+        type_=types.UUID()
     )
 
     especialidadId = Column(
