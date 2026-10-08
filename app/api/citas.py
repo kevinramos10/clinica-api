@@ -5,6 +5,7 @@ from app.schemas import CitaSchema
 from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoCita, EstadoMedico
 from datetime import date, datetime, timedelta
+from app.util import paginationInfo
 
 duracionCita = timedelta(minutes=30)
 
@@ -65,16 +66,29 @@ class CitasController(Resource):
 
     def get(self):
 
+        pagina = int(request.args.get('page', 1))
+        porPagina = int(request.args.get('perPage'), 10)
+
+        offset = (pagina - 1) * porPagina
+        limit = porPagina
+
         citas = db.session.query(Cita).filter(
             Cita.estado != EstadoCita.Cancelada
-        ).all()
+        ).offset(offset).limit(limit).all()
+
+        total = db.session.query(Cita).filter(
+            Cita.estado != EstadoCita.Cancelada
+        ).count()
+
+        pageInfo = paginationInfo(total, pagina, porPagina)
 
         adaptador = TypeAdapter(list[CitaSchema])
 
         informacion = adaptador.validate_python(citas)
 
         return{
-            'content': adaptador.dump_python(informacion, mode='json')
+            'content': adaptador.dump_python(informacion, mode='json'),
+            'pageInfo': pageInfo
         }
 
     def post(self):
