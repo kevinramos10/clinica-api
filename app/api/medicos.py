@@ -6,24 +6,41 @@ from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoMedico
 from sqlalchemy import or_
 from datetime import date
+from app.util import paginationInfo
 
 class MedicosController(Resource):
 
     def get(self):
+
+        pagina = int(request.args.get('page', 1))
+        porPagina = int(request.args.get('perPage', 10))
+
+        offset = (pagina - 1) * porPagina
+        limit = porPagina
 
         medicos = db.session.query(Medico).filter(
             or_(
                 Medico.estado == EstadoMedico.Activo,
                 Medico.estado == EstadoMedico.De_Vacaciones
             )            
-        ).all()
+        ).offset(offset).limit(limit).all()
+
+        total = db.session.query(Medico).filter(
+            or_(
+                Medico.estado == EstadoMedico.Activo,
+                Medico.estado == EstadoMedico.De_Vacaciones
+            )
+        ).count()
+
+        pageInfo = paginationInfo(total, pagina, porPagina)
 
         adaptador = TypeAdapter(list[MedicoSchema])
 
         informacion = adaptador.validate_python(medicos)
 
         return{
-            'content': adaptador.dump_python(informacion, mode='json')
+            'content': adaptador.dump_python(informacion, mode='json'),
+            'pageInfo': pageInfo
         }
 
     def post(self):
