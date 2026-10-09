@@ -13,3 +13,12 @@ class EstadoCita(Enum):
     Confirmada = "Confirmada"
     Atendida = "Atendida"
     Cancelada = "Cancelada"
+
+class RolUsuario(Enum):
+    Admin = "Admin"
+    Recepcionista = "Recepcionista"
+    Medico = "Medico"
+
+class EstadoUsuario(Enum):
+    Activo = "Activo"
+    Inactivo = "Inactivo"
