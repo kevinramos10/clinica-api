@@ -5,3 +5,4 @@ from .medicos_especialidades import MedicoEspecialidad
 from .consultorios import Consultorio
 from .citas import Cita
 from .usuarios import Usuario
+from .historiales import Historial
