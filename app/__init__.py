@@ -2,7 +2,7 @@ from flask import Flask
 from .config import config_map
 from .extensions import db, migrate
 from flask_restful import Api
-from .api import PacientesController, PacienteController, MedicosController, MedicoController, EspecialidadesController, EspecialidadController, MedicosEspecialidadesController, MedicoEspecialidadController, ConsultoriosController, ConsultorioController, CitasController, CitaController
+from .api import PacientesController, PacienteController, MedicosController, MedicoController, EspecialidadesController, EspecialidadController, MedicosEspecialidadesController, MedicoEspecialidadController, ConsultoriosController, ConsultorioController, CitasController, CitaController, HistorialController, HistorialesController
 from .models import *
 
 def create_app(env = "development"):
@@ -42,5 +42,9 @@ def create_app(env = "development"):
     #Citas
     api.add_resource(CitasController, '/citas')
     api.add_resource(CitaController, '/citas/<uuid:id>')
+
+    #Historiales
+    api.add_resource(HistorialesController, '/historiales')
+    api.add_resource(HistorialController, '/historiales/<uuid:id>')
     
     return app

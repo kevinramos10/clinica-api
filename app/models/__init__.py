@@ -4,3 +4,4 @@ from .especialidades import Especialidad
 from .medicos_especialidades import MedicoEspecialidad
 from .consultorios import Consultorio
 from .citas import Cita
+from .historiales import Historial
