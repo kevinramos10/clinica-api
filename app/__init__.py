@@ -2,8 +2,9 @@ from flask import Flask
 from .config import config_map
 from .extensions import db, migrate
 from flask_restful import Api
-from .api import PacientesController, PacienteController, MedicosController, MedicoController, EspecialidadesController, EspecialidadController, MedicosEspecialidadesController, MedicoEspecialidadController, ConsultoriosController, ConsultorioController, CitasController, CitaController
+from .api import PacientesController, PacienteController, MedicosController, MedicoController, EspecialidadesController, EspecialidadController, MedicosEspecialidadesController, MedicoEspecialidadController, ConsultoriosController, ConsultorioController, CitasController, CitaController, RegistroController,  UsuariosController, LoginController, CambiarPasswordController, DeleteController
 from .models import *
+from flask_jwt_extended import JWTManager
 
 def create_app(env = "development"):
     app = Flask(__name__)
@@ -11,6 +12,7 @@ def create_app(env = "development"):
     api = Api(app)
 
     app.config.from_object(config_map[env])
+    JWTManager(app)    
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -42,5 +44,12 @@ def create_app(env = "development"):
     #Citas
     api.add_resource(CitasController, '/citas')
     api.add_resource(CitaController, '/citas/<uuid:id>')
+
+    #Usuarios
+    api.add_resource(UsuariosController, '/usuarios')
+    api.add_resource(RegistroController, '/registro')
+    api.add_resource(LoginController, '/login')
+    api.add_resource(CambiarPasswordController, '/password')
+    api.add_resource(DeleteController, '/delete/<uuid:id>')
     
     return app
