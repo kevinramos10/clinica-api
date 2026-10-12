@@ -166,7 +166,6 @@ class MedicoController(Resource):
                 "message": "El DNI, correo o Colegiatura ya está registrado"
             }, 409
 
-
     def delete(self, id):
         medico = db.session.query(Medico).filter(
             Medico.id == id, 

@@ -67,7 +67,7 @@ class CitasController(Resource):
     def get(self):
 
         pagina = int(request.args.get('page', 1))
-        porPagina = int(request.args.get('perPage'), 10)
+        porPagina = int(request.args.get('perPage', 10))
 
         offset = (pagina - 1) * porPagina
         limit = porPagina
