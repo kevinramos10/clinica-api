@@ -91,14 +91,20 @@ class PacienteController(Resource):
         try:
             dataValidada = PacienteSchema.model_validate(data)
 
-            dniExistente = db.session.query(Paciente).filter(Paciente.dni == dataValidada.dni).first()
+            dniExistente = db.session.query(Paciente).filter(
+                Paciente.dni == dataValidada.dni,
+                Paciente.id != paciente.id
+                ).first()
             if dniExistente:
                 return{
                     "message": "El DNI ya está registrado"
                 }, 409
 
             if dataValidada.correo:
-                correoExistente = db.session.query(Paciente).filter(Paciente.correo == dataValidada.correo).first()
+                correoExistente = db.session.query(Paciente).filter(
+                    Paciente.correo == dataValidada.correo,
+                    Paciente.id != paciente.id
+                    ).first()
                 if correoExistente:
                     return{
                         "message": "El Correo ya está registrado"

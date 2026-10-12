@@ -7,6 +7,7 @@ from app.models.enums import EstadoMedico
 from sqlalchemy import or_
 from datetime import date
 from app.util import paginationInfo
+from sqlalchemy.exc import IntegrityError
 
 class MedicosController(Resource):
 
@@ -49,6 +50,24 @@ class MedicosController(Resource):
         try:
             dataValidada = MedicoSchema.model_validate(data)
 
+            dniExistente = db.session.query(Medico).filter(Medico.dni == dataValidada.dni).first()
+            if dniExistente:
+                return{
+                    "message": "El DNI ya está registrado"
+                }, 409
+
+            colegiaturaExistente = db.session.query(Medico).filter(Medico.colegiatura == dataValidada.colegiatura).first()
+            if colegiaturaExistente:
+                return{
+                    "message": "La Colegiatura ya está registrado"
+                }, 409
+
+            correoExistente = db.session.query(Medico).filter(Medico.correo == dataValidada.correo).first()
+            if correoExistente:
+                return{
+                    "message": "El Correo ya está registrado"
+                }, 409
+        
             nuevoMedico = Medico(**dataValidada.model_dump())
 
             db.session.add(nuevoMedico)
@@ -67,6 +86,11 @@ class MedicosController(Resource):
                 "message": "Error al crear el medico",
                 "content": error.errors()
             }
+        except IntegrityError:
+            db.session.rollback()
+            return{
+                "message": "El DNI, correo o Colegiatura ya está registrado"
+            }, 409
 
 class MedicoController(Resource):
 
@@ -81,27 +105,66 @@ class MedicoController(Resource):
 
         data = request.get_json()
 
-        dataValidada = MedicoSchema.model_validate(data)
+        try:
 
-        medico.dni = dataValidada.dni
-        medico.colegiatura = dataValidada.colegiatura
-        medico.nombre = dataValidada.nombre
-        medico.apellidoPaterno = dataValidada.apellidoPaterno
-        medico.apellidoMaterno = dataValidada.apellidoMaterno
-        medico.sexo = dataValidada.sexo
-        medico.telefono = dataValidada.telefono
-        medico.correo = dataValidada.correo
-        medico.fechaNacimiento = dataValidada.fechaNacimiento
-        medico.estado = dataValidada.estado
+            dataValidada = MedicoSchema.model_validate(data)
 
-        db.session.commit()
+            dniExistente = db.session.query(Medico).filter(
+                Medico.dni == dataValidada.dni,
+                Medico.id != medico.id
+                ).first()
+            if dniExistente:
+                return{
+                    "message": "El Medico ya está registrado"
+                }, 409
 
-        resultado = MedicoSchema.model_validate(medico).model_dump(mode='json')
+            colegiaturaExistente = db.session.query(Medico).filter(
+                Medico.colegiatura == dataValidada.colegiatura,
+                Medico.id != medico.id            
+                ).first()
+            if colegiaturaExistente:
+                return{
+                    "message": "La Colegiatura ya está registrado"
+                }, 409
 
-        return{
-            "message": "Medico modificado exitosamente",
-            "content": resultado
-        }
+            correoExistente = db.session.query(Medico).filter(
+                Medico.correo == dataValidada.correo,
+                Medico.id != medico.id
+                ).first()
+            if correoExistente:
+                return{
+                    "message": "El Correo ya está registrado"
+                }, 409
+
+            medico.dni = dataValidada.dni
+            medico.colegiatura = dataValidada.colegiatura
+            medico.nombre = dataValidada.nombre
+            medico.apellidoPaterno = dataValidada.apellidoPaterno
+            medico.apellidoMaterno = dataValidada.apellidoMaterno
+            medico.sexo = dataValidada.sexo
+            medico.telefono = dataValidada.telefono
+            medico.correo = dataValidada.correo
+            medico.fechaNacimiento = dataValidada.fechaNacimiento
+            medico.estado = dataValidada.estado
+
+            db.session.commit()
+
+            resultado = MedicoSchema.model_validate(medico).model_dump(mode='json')
+
+            return{
+                "message": "Medico modificado exitosamente",
+                "content": resultado
+            },200
+        except ValidationError as error:
+            return{
+                "message": "Error al validar los datos del medico",
+                "content": error.errors()
+            }
+        except IntegrityError:
+            db.session.rollback()
+            return {
+                "message": "El DNI, correo o Colegiatura ya está registrado"
+            }, 409
 
 
     def delete(self, id):
