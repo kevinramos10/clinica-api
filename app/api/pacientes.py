@@ -4,6 +4,7 @@ from app.extensions import db
 from app.schemas import PacienteSchema
 from pydantic import ValidationError, TypeAdapter
 from app.util import paginationInfo
+from sqlalchemy.exc import IntegrityError
 
 class PacientesController(Resource):
     
@@ -36,6 +37,19 @@ class PacientesController(Resource):
         try:
             dataValidada = PacienteSchema.model_validate(data)
 
+            dniExistente = db.session.query(Paciente).filter(Paciente.dni == dataValidada.dni).first()
+            if dniExistente:
+                return{
+                    "message": "El DNI ya está registrado"
+                }, 409
+
+            if dataValidada.correo:
+                correoExistente = db.session.query(Paciente).filter(Paciente.correo == dataValidada.correo).first()
+                if correoExistente:
+                    return{
+                        "message": "El Correo ya está registrado"
+                    }, 409
+
             nuevoPaciente = Paciente(**dataValidada.model_dump())
 
             db.session.add(nuevoPaciente)
@@ -55,6 +69,12 @@ class PacientesController(Resource):
                 "content": error.errors()
             }
 
+        except IntegrityError:
+            db.session.rollback()
+            return{
+                "message": "El DNI o correo ya está registrado"
+            }, 409
+
 class PacienteController(Resource):
     
     def put(self, id):
@@ -64,28 +84,53 @@ class PacienteController(Resource):
         if not paciente:
             return{
                 "message": "Paciente no encontrado"
-            }, 404
-
+            }, 404        
+        
         data = request.get_json()
 
-        dataValidada = PacienteSchema.model_validate(data)
+        try:
+            dataValidada = PacienteSchema.model_validate(data)
 
-        paciente.dni = dataValidada.dni
-        paciente.nombre = dataValidada.nombre
-        paciente.apellidoPaterno = dataValidada.apellidoPaterno
-        paciente.apellidoMaterno = dataValidada.apellidoMaterno
-        paciente.telefono = dataValidada.telefono
-        paciente.correo = dataValidada.correo
-        paciente.fechaNacimiento = dataValidada.fechaNacimiento
-        paciente.sexo = dataValidada.sexo
-        paciente.direccion = dataValidada.direccion
+            dniExistente = db.session.query(Paciente).filter(Paciente.dni == dataValidada.dni).first()
+            if dniExistente:
+                return{
+                    "message": "El DNI ya está registrado"
+                }, 409
 
-        db.session.commit()
+            if dataValidada.correo:
+                correoExistente = db.session.query(Paciente).filter(Paciente.correo == dataValidada.correo).first()
+                if correoExistente:
+                    return{
+                        "message": "El Correo ya está registrado"
+                    }, 409
 
-        resultado = PacienteSchema.model_validate(paciente).model_dump(mode='json')
+            paciente.dni = dataValidada.dni
+            paciente.nombre = dataValidada.nombre
+            paciente.apellidoPaterno = dataValidada.apellidoPaterno
+            paciente.apellidoMaterno = dataValidada.apellidoMaterno
+            paciente.telefono = dataValidada.telefono
+            paciente.correo = dataValidada.correo
+            paciente.fechaNacimiento = dataValidada.fechaNacimiento
+            paciente.sexo = dataValidada.sexo
+            paciente.direccion = dataValidada.direccion
 
-        return{
-            "message": "Paciente modificado exitosamente",
-            "content": resultado
-        }
+            db.session.commit()
+
+            resultado = PacienteSchema.model_validate(paciente).model_dump(mode='json')
+
+            return{
+                "message": "Paciente modificado exitosamente",
+                "content": resultado
+            }
+        except ValidationError as error:
+            return{
+                "message": "Error al validar los datos del paciente",
+                "content": error.errors()
+            }
+
+        except IntegrityError:
+            db.session.rollback()
+            return {
+                "message": "El DNI o correo ya está registrado"
+            }, 409
 
