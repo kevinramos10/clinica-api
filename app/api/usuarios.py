@@ -2,11 +2,15 @@ from flask_restful import Resource, request
 from app.models import Usuario
 from app.extensions import db
 from pydantic import ValidationError, TypeAdapter
-from app.util import paginationInfo
-from app.schemas import UsuarioSchema, LoginUsuarioSchema, CambiarPasswordSchema
+from app.util import paginationInfo, enviar_correo
+from app.schemas import UsuarioSchema, LoginUsuarioSchema, CambiarPasswordSchema, ResetPasswordSchema, ConfirmResetPasswordSchema
 from app.models.enums import RolUsuario, EstadoUsuario
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token, verify_jwt_in_request, get_jwt_identity, jwt_required
+from os import getenv
+from json import dumps, loads
+from datetime import datetime, timedelta
+from cryptography.fernet import Fernet, InvalidToken
 
 class UsuariosController(Resource):
 
@@ -96,7 +100,6 @@ class RegistroController(Resource):
                 'message': 'Error al crear el usuario',
                 'content': error.errors(include_context=False)
             }, 400
-
 
 class LoginController(Resource):
 
@@ -198,21 +201,116 @@ class DeleteController(Resource):
             'message': 'Usuario desactivado correctamente'
         }, 200
 
+class ResetPasswordController(Resource):
+    def post(self):
+        try:
+            dataValidada = ResetPasswordSchema.model_validate(request.get_json())
 
+            usuarioEncontrado = db.session.query(Usuario).filter(Usuario.user == dataValidada.user).first()
 
+            if not usuarioEncontrado:
+                return{
+                    'message': 'Usuario no existe en el sistema'
+                }, 400
 
+            if not usuarioEncontrado.medico:
+                return{
+                    'message': 'El usuario no tiene un medico asociado'
+                }
 
+            correo = usuarioEncontrado.medico.correo
 
+            encriptador = Fernet(getenv('FERNET_KEY'))
 
+            horaActual = datetime.now()
 
+            fechaVencimiento = horaActual + timedelta(minutes=5)
 
+            data = {
+                "usuarioId": str(usuarioEncontrado.id),
+                "vence": fechaVencimiento.strftime("%Y-%m-%d %H-%M-%S")
+            }
 
+            dataJson = dumps(data).encode()
 
+            token = encriptador.encrypt(dataJson)
 
+            cuerpo = f"""
+                <h1>¡Hola {usuarioEncontrado.medico.nombre} {usuarioEncontrado.medico.apellidoPaterno} {usuarioEncontrado.medico.apellidoMaterno}!</h1>
+                <p>Has solicitado restablecer tu contraseña.</p>
+                <p>Para continuar, utiliza el siguiente Token:</p>
+                <p>{token.decode()}</p>
+                <p>Este token caduca en 5 minutos.</p>
+                <p>Si no solicitaste este cambio, ignora este correo.</p>
+            """
+            enviar_correo(
+                correo,
+                "Restablecer contraseña",
+                cuerpo
+            )
 
+            return {
+                'message': 'Se envió el correo para la restauración'
+            }, 200
 
+        except ValidationError as error:
+            return{
+                'message': 'Error al solicitar la restauracion de la contraseña',
+                'content': error.errors(include_context=False)
+            }, 400
 
+class ConfirmResetPasswordController(Resource):
 
+    def post(self):
+        try:
+            dataValidada = ConfirmResetPasswordSchema.model_validate(request.get_json())
 
+            encriptador = Fernet(getenv('FERNET_KEY'))
 
+            token = dataValidada.token.encode()
+
+            dataDecifrada = encriptador.decrypt(token)
+
+            data = loads(dataDecifrada)
+
+            fechaVencimiento = datetime.strptime(
+                data["vence"],
+                "%Y-%m-%d %H-%M-%S"
+            )
+
+            horaActual = datetime.now()
+
+            if horaActual > fechaVencimiento:
+                return{
+                    'message': 'El token ha vencido, solicita uno nuevo'
+                }, 400
+
+            usuario_id = data["usuarioId"]
+
+            usuario = db.session.query(Usuario).filter(Usuario.id == usuario_id).first()
+
+            if not usuario:
+                return {
+                    'message': 'Usuario no encontrado'
+                }, 404
+
+            usuario.password = hashpw(dataValidada.password.encode(), gensalt()).decode()
+
+            db.session.commit()
+
+            return{
+                'message': 'Contraseña Restablecida exitosamente'
+            }, 200
+
+        except ValidationError as error:
+            return{
+                'message': 'Error al restablecer la contraseña',
+                'content': error.errors(include_context=False)
+            }, 400
+
+        except InvalidToken:
+            return {
+                'message': 'El token es inválido o ha sido manipulado'
+            }, 400
+        
     
