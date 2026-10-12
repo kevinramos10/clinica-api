@@ -12,7 +12,8 @@ from .api import (
     CitasController, CitaController,
     RegistroController, UsuariosController, LoginController,
     CambiarPasswordController, DeleteController,
-    HistorialController, HistorialesController
+    HistorialController, HistorialesController,
+    ResetPasswordController, ConfirmResetPasswordController
 )
 from .models import *
 from flask_jwt_extended import JWTManager
@@ -65,8 +66,10 @@ def create_app(env="development"):
     api.add_resource(RegistroController, '/registro')
     api.add_resource(LoginController, '/login')
     api.add_resource(CambiarPasswordController, '/password')
+    api.add_resource(ResetPasswordController, '/reset')
+    api.add_resource(ConfirmResetPasswordController, '/confirmar-password')
     api.add_resource(DeleteController, '/delete/<uuid:id>')
-
+    
     # Historiales
     api.add_resource(HistorialesController, '/historiales')
     api.add_resource(HistorialController, '/historiales/<uuid:id>')

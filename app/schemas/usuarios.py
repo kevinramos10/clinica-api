@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from app.models.enums import RolUsuario, EstadoUsuario
 from uuid import UUID
 
@@ -19,3 +19,18 @@ class LoginUsuarioSchema(BaseModel):
 class CambiarPasswordSchema(BaseModel):
     passwordActual: str
     passwordNueva: str
+
+class ResetPasswordSchema(BaseModel):
+    user: str
+
+class ConfirmResetPasswordSchema(BaseModel):
+    token: str
+    password: str = Field(min_length=8)
+    confirmarPassword: str = Field(min_length=8)
+
+    @model_validator(mode="after")
+    def validar_Password(self):
+        if self.password != self.confirmarPassword:
+            raise ValueError("Las constraseñas no coinciden")
+
+        return self

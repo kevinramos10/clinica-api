@@ -5,5 +5,5 @@ from .especialidades import EspecialidadesController, EspecialidadController
 from .medicos_especialidades import MedicosEspecialidadesController, MedicoEspecialidadController
 from .consultorios import ConsultoriosController, ConsultorioController
 from .citas import CitasController, CitaController
-from .usuarios import RegistroController, UsuariosController, LoginController, CambiarPasswordController, DeleteController
+from .usuarios import RegistroController, UsuariosController, LoginController, CambiarPasswordController, DeleteController, ResetPasswordController, ConfirmResetPasswordController
 from .historiales import HistorialesController, HistorialController
