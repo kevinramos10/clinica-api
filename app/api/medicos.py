@@ -5,24 +5,42 @@ from app.schemas import MedicoSchema
 from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoMedico
 from sqlalchemy import or_
+from datetime import date
+from app.util import paginationInfo
 
 class MedicosController(Resource):
 
     def get(self):
+
+        pagina = int(request.args.get('page', 1))
+        porPagina = int(request.args.get('perPage', 10))
+
+        offset = (pagina - 1) * porPagina
+        limit = porPagina
 
         medicos = db.session.query(Medico).filter(
             or_(
                 Medico.estado == EstadoMedico.Activo,
                 Medico.estado == EstadoMedico.De_Vacaciones
             )            
-        ).all()
+        ).offset(offset).limit(limit).all()
+
+        total = db.session.query(Medico).filter(
+            or_(
+                Medico.estado == EstadoMedico.Activo,
+                Medico.estado == EstadoMedico.De_Vacaciones
+            )
+        ).count()
+
+        pageInfo = paginationInfo(total, pagina, porPagina)
 
         adaptador = TypeAdapter(list[MedicoSchema])
 
         informacion = adaptador.validate_python(medicos)
 
         return{
-            'content': adaptador.dump_python(informacion, mode='json')
+            'content': adaptador.dump_python(informacion, mode='json'),
+            'pageInfo': pageInfo
         }
 
     def post(self):
@@ -105,5 +123,41 @@ class MedicoController(Resource):
 
         return{
             "message": "Medico eliminado exitosamente"
+        }
+
+    def get(self, id):
+
+        medicoEncontrado = db.session.query(Medico).filter(Medico.id == id).first()
+
+        if not medicoEncontrado:
+            return{
+                'message': 'Medico con ese id no existe'
+            }, 404
+
+        especialidades = []
+
+        for medicoEspecilidad in medicoEncontrado.medico_especialidades:
+            especialidades.append({
+                "id": str(medicoEspecilidad.especialidad.id),
+                "nombre": medicoEspecilidad.especialidad.nombre
+            })
+
+        resultado = {
+            "id": str(medicoEncontrado.id),
+            "dni": medicoEncontrado.dni,
+            "colegiatura": medicoEncontrado.colegiatura,
+            "nombre": medicoEncontrado.nombre,
+            "apellidoPaterno": medicoEncontrado.apellidoPaterno,
+            "apellidoMaterno": medicoEncontrado.apellidoMaterno,
+            "sexo": medicoEncontrado.sexo.value,
+            "telefono": medicoEncontrado.telefono,
+            "correo": medicoEncontrado.correo,
+            "fechaNacimiento": date.strftime(medicoEncontrado.fechaNacimiento, "%Y-%m-%d") ,
+            "estado": medicoEncontrado.estado.value,
+            "especialidades": especialidades
+        }
+
+        return{
+            'content': resultado
         }
         

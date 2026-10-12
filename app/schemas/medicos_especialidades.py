@@ -1,13 +1,13 @@
-from pydantic import BaseModel, Field, ConfigDict, PositiveInt, field_validator
-
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated
+from uuid import UUID
 
-ListaIds = Annotated[list[PositiveInt], Field(min_length=1, max_length=100)]
+ListaIds = Annotated[list[UUID], Field(min_length=1, max_length=100)]
 
 class MedicosEspecialidadesSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    medicoId: int = Field(min=1)
+    medicoId: UUID
     especialidadIds: ListaIds = Field()
 
     @field_validator('especialidadIds')

@@ -1,11 +1,12 @@
 from app.extensions import db
 from sqlalchemy import Column, types
 from .enums import SexoPersona, EstadoMedico
+from uuid import uuid4
 
 class Medico(db.Model):
     __tablename__='medicos'
 
-    id = Column(autoincrement=True, primary_key=True, type_=types.Integer)
+    id = Column(primary_key=True, type_=types.UUID(), default=uuid4)
     dni = Column(unique=True, nullable=False, type_=types.VARCHAR(20))
     colegiatura = Column(unique=True, nullable=False, type_=types.VARCHAR(20))
     nombre = Column(nullable=False, type_=types.Text)

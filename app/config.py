@@ -2,6 +2,7 @@ from os import getenv
 
 class Base: 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = getenv("JWT_SECRET_KEY")
 
 class Development(Base):
     DEBUG = True

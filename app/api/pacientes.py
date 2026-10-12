@@ -3,19 +3,31 @@ from app.models import Paciente
 from app.extensions import db
 from app.schemas import PacienteSchema
 from pydantic import ValidationError, TypeAdapter
+from app.util import paginationInfo
 
 class PacientesController(Resource):
     
     def get(self):
 
-        pacientes = db.session.query(Paciente).all()
+        pagina = int(request.args.get('page', 1))
+        porPagina = int(request.args.get('perPage', 10))
+
+        offset = (pagina - 1) * porPagina
+        limit = porPagina
+
+        pacientes = db.session.query(Paciente).offset(offset).limit(limit).all()
+
+        total = db.session.query(Paciente).count()
+
+        pageInfo = paginationInfo(total, pagina, porPagina)
 
         adaptador = TypeAdapter(list[PacienteSchema])
 
         informacion = adaptador.validate_python(pacientes)
 
         return{
-            'content': adaptador.dump_python(informacion, mode='json')
+            'content': adaptador.dump_python(informacion, mode='json'),
+            'pageInfo': pageInfo
         }
 
     def post(self):
