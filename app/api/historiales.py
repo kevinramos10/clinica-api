@@ -1,7 +1,7 @@
 from flask_restful import Resource, request
 from app.models import Historial, Cita
 from app.extensions import db
-from app.schemas import HistorialSchema
+from app.schemas import HistorialSchema, HistorialRegisterSchema
 from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoCita
 
@@ -40,7 +40,7 @@ class HistorialesController(Resource):
         data = request.get_json()
 
         try:
-            dataValidada = HistorialSchema.model_validate(data)
+            dataValidada = HistorialRegisterSchema.model_validate(data)
 
             mensajeError = validarCita(dataValidada)
 
@@ -55,7 +55,7 @@ class HistorialesController(Resource):
 
             db.session.commit()
 
-            resultado = HistorialSchema.model_validate(nuevoHistorial).model_dump(mode='json')
+            resultado = HistorialRegisterSchema.model_validate(nuevoHistorial).model_dump(mode='json')
 
             return{
                 "message": "Historial creado exitosamente",

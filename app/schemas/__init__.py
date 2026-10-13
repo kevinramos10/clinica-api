@@ -6,4 +6,4 @@ from .medicos_especialidades import MedicosEspecialidadesSchema
 from .consultorios import ConsultorioSchema
 from .citas import CitaSchema
 from .usuarios import UsuarioSchema, LoginUsuarioSchema, CambiarPasswordSchema, ResetPasswordSchema, ConfirmResetPasswordSchema, UsuarioRespuestaSchema
-from .historiales import HistorialSchema
+from .historiales import HistorialSchema, HistorialRegisterSchema
