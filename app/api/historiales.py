@@ -4,6 +4,7 @@ from app.extensions import db
 from app.schemas import HistorialSchema, HistorialRegisterSchema
 from pydantic import ValidationError, TypeAdapter
 from app.models.enums import EstadoCita
+from zoneinfo import ZoneInfo
 
 def validarCita(dataValidada):
 
@@ -49,7 +50,14 @@ class HistorialesController(Resource):
                     "message": mensajeError
                 }, 400
 
-            nuevoHistorial = Historial(**dataValidada.model_dump())
+            fechaRegistro = dataValidada.fechaRegistro.astimezone(
+                ZoneInfo("America/Lima")
+            ).replace(tzinfo=None)
+
+            nuevoHistorial = Historial(
+                **dataValidada.model_dump(exclude={"fechaRegistro"}),
+                fechaRegistro=fechaRegistro
+            )
 
             db.session.add(nuevoHistorial)
 
