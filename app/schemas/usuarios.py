@@ -2,6 +2,14 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 from app.models.enums import RolUsuario, EstadoUsuario
 from uuid import UUID
 
+class UsuarioRespuestaSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    user: str
+    rol: RolUsuario
+    estado: EstadoUsuario
+    medico_id: UUID | None = None
 
 class UsuarioSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)

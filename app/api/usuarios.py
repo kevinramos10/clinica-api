@@ -3,7 +3,7 @@ from app.models import Usuario
 from app.extensions import db
 from pydantic import ValidationError, TypeAdapter
 from app.util import paginationInfo, enviar_correo
-from app.schemas import UsuarioSchema, LoginUsuarioSchema, CambiarPasswordSchema, ResetPasswordSchema, ConfirmResetPasswordSchema
+from app.schemas import UsuarioSchema, LoginUsuarioSchema, CambiarPasswordSchema, ResetPasswordSchema, ConfirmResetPasswordSchema, UsuarioRespuestaSchema
 from app.models.enums import RolUsuario, EstadoUsuario
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token, verify_jwt_in_request, get_jwt_identity, jwt_required
@@ -31,7 +31,7 @@ class UsuariosController(Resource):
                 }, 404
             
             return {
-                'content': UsuarioSchema.model_validate(usuario).model_dump(mode='json')
+                'content': UsuarioRespuestaSchema.model_validate(usuario).model_dump(mode='json')
             }
 
         pagina = int(request.args.get('page', 1))
@@ -50,7 +50,7 @@ class UsuariosController(Resource):
 
         pageInfo = paginationInfo(total, pagina, porPagina)
 
-        adaptador = TypeAdapter(list[UsuarioSchema])
+        adaptador = TypeAdapter(list[UsuarioRespuestaSchema])
 
         informacion = adaptador.validate_python(usuarios)
 
