@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict, EmailStr, field_serializer, field_validator
-from datetime import date, datetime
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from datetime import date
 from app.models.enums import SexoPersona
 from uuid import UUID
 
@@ -16,14 +16,3 @@ class PacienteSchema(BaseModel):
     fechaNacimiento: date
     sexo: SexoPersona
     direccion: str | None = Field(default=None)
-
-    @field_validator('fechaNacimiento', mode='before')
-    @classmethod
-    def validar_fecha(cls, valor):
-        if isinstance(valor, str):
-            return datetime.strptime(valor, "%d/%m/%Y").date()
-        return valor
-
-
-    def serializar_fecha(self, fecha:date):
-        return fecha.strftime("%d/%m/%Y")
