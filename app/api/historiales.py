@@ -86,7 +86,7 @@ class HistorialController(Resource):
             "diagnostico": historialEncontrado.diagnostico,
             "tratamiento": historialEncontrado.tratamiento,
             "observaciones": historialEncontrado.observaciones,
-            "fechaRegistro": historialEncontrado.fechaRegistro.strftime("%Y-%m-%d %H:%M"),
+            "fechaRegistro": historialEncontrado.fechaRegistro.strftime("%d/%m/%Y %H:%M:%S"),
             "cita": {
                 "id": str(cita.id),
                 "fecha": cita.fecha.strftime("%Y-%m-%d"),
