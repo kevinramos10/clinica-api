@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from uuid import UUID
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from pydantic import field_serializer
 
 class HistorialSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -21,4 +23,10 @@ class HistorialRegisterSchema(BaseModel):
     diagnostico: str | None = Field(default=None)
     tratamiento: str | None = Field(default=None)
     observaciones: str | None = Field(default=None)
-    fechaRegistro: datetime = Field(default_factory=datetime.now)
+    fechaRegistro: datetime = Field(
+        default_factory=lambda: datetime.now(ZoneInfo("America/Lima"))
+    )
+
+    @field_serializer('fechaRegistro')
+    def serializar_fecha(self, fecha:datetime):
+        return fecha.strftime("%d/%m/%Y %H:%M:%S")
