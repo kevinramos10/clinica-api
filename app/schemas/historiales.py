@@ -27,6 +27,6 @@ class HistorialRegisterSchema(BaseModel):
         default_factory=lambda: datetime.now(ZoneInfo("America/Lima"))
     )
 
-    @field_serializer('fechaRegistro')
+    @field_serializer('fechaRegistro', when_used='json')
     def serializar_fecha(self, fecha:datetime):
         return fecha.strftime("%d/%m/%Y %H:%M:%S")
