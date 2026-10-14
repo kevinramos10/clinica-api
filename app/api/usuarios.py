@@ -60,10 +60,27 @@ class UsuariosController(Resource):
         }    
 
 class RegistroController(Resource):
-    
+    @jwt_required()
     def post(self):
         try:
             dataValidada = UsuarioSchema.model_validate(request.get_json())
+
+            idUsuario = get_jwt_identity()
+
+            usuario = db.session.query(Usuario).filter(
+                Usuario.id == idUsuario,
+                Usuario.estado == EstadoUsuario.Activo
+            ).first()
+
+            if not usuario:
+                return{
+                    "message": 'Usuario no encontrado o inactivo'
+                }
+
+            if usuario.rol != RolUsuario.Admin:
+                return{
+                    "message":  "No tienes permisos de administrador"
+                }, 403
 
             rol = dataValidada.rol
 
@@ -101,6 +118,8 @@ class RegistroController(Resource):
                 'content': error.errors(include_context=False)
             }, 400
 
+
+intentos_login = {}
 class LoginController(Resource):
 
     def post(self):
@@ -122,8 +141,15 @@ class LoginController(Resource):
 
             esLaPassword = checkpw(password, hashedPassword)
 
-            if esLaPassword:
+            registro = intentos_login.get(dataValidada.user)
 
+            if registro and registro["bloqueado_hasta"]:
+                if datetime.now() < registro["bloqueado_hasta"]:
+                    return{
+                        "message": "Cuenta bloqueada temporalmente. Intenta mas tarde."
+                    }, 429
+
+            if esLaPassword:
                 token = create_access_token(
                     identity=str(usuarioEncontrado.id)
                 )
@@ -132,11 +158,28 @@ class LoginController(Resource):
                     'message': 'Bienvenido',
                     'token': token
                 }, 200
-            
             else:
-                return {
-                    'message': 'Credenciales incorrectas'
+                registro = intentos_login.setdefault(
+                    dataValidada.user,
+                    {"intentos": 0, "bloqueado_hasta": None}
+                )
+
+                registro["intentos"] += 1
+
+                if registro["intentos"] >= 3:
+                    registro['bloqueado_hasta'] = (
+                        datetime.now() + timedelta(minutes=5)
+                    )
+
+                    return{
+                        "message": "Cuenta bloqueada durante 5 minutos"
+                    }, 429
+
+                return{
+                    "message": "Credenciales incorrectas",
+                    "intentos_restantes": 3 - registro["intentos"]
                 }, 401
+
 
         except ValidationError as error:
             return{
