@@ -65,12 +65,6 @@ class HistorialesController(Resource):
 
             resultado = HistorialRegisterSchema.model_validate(nuevoHistorial).model_dump(mode='json')
 
-            print("dataValidada.fechaRegistro:")
-            print(dataValidada.fechaRegistro)
-            print("dataValidada.fechaRegistro.tzinfo:")
-            print(dataValidada.fechaRegistro.tzinfo)
-            print("Fecha guardada:", nuevoHistorial.fechaRegistro)
-
             return{
                 "message": "Historial creado exitosamente",
                 "content": resultado
