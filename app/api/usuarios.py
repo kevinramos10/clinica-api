@@ -60,27 +60,10 @@ class UsuariosController(Resource):
         }    
 
 class RegistroController(Resource):
-    @jwt_required()
+
     def post(self):
         try:
             dataValidada = UsuarioSchema.model_validate(request.get_json())
-
-            idUsuario = get_jwt_identity()
-
-            usuario = db.session.query(Usuario).filter(
-                Usuario.id == idUsuario,
-                Usuario.estado == EstadoUsuario.Activo
-            ).first()
-
-            if not usuario:
-                return{
-                    "message": 'Usuario no encontrado o inactivo'
-                }
-
-            if usuario.rol != RolUsuario.Admin:
-                return{
-                    "message":  "No tienes permisos de administrador"
-                }, 403
 
             rol = dataValidada.rol
 
