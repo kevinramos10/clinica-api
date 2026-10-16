@@ -177,7 +177,7 @@ class MedicoController(Resource):
                 "message": "Medico no encontrado"
             }, 404
 
-        db.session.query(Medico).filter(medico.id == id).update({
+        db.session.query(Medico).filter(Medico.id == id).update({
             Medico.estado: EstadoMedico.Inactivo
         })
 
