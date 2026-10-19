@@ -11,7 +11,6 @@ class MedicosEspecialidadesSchema(BaseModel):
     especialidadIds: ListaIds = Field()
 
     @field_validator('especialidadIds')
-
     def eliminar_duplicados(cls, valor):
 
         return list(set(valor))
