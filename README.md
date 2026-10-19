@@ -1,10 +1,10 @@
-# 🏥 Clínica API
+# Clínica API
 
 API REST para la gestión de una clínica: pacientes, médicos, especialidades, consultorios, citas, historiales médicos y usuarios con autenticación JWT. Desplegada en **Render** con base de datos **PostgreSQL en Neon**.
 
 🔗 **API en producción:** `https://TU-APP.onrender.com` <!-- TODO: reemplazar -->
 
-## ✨ Características
+## Características
 
 - **CRUD completo** de pacientes, médicos, especialidades, consultorios, citas e historiales.
 - **Autenticación con JWT** (Flask-JWT-Extended): registro, login y eliminación de usuarios.
@@ -19,7 +19,7 @@ API REST para la gestión de una clínica: pacientes, médicos, especialidades, 
 - **Migraciones** de base de datos con Alembic (Flask-Migrate).
 - **Zona horaria de Lima** para las fechas de registro.
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 | Área | Herramientas |
 |---|---|
@@ -33,7 +33,7 @@ API REST para la gestión de una clínica: pacientes, médicos, especialidades, 
 | Despliegue | Render, Gunicorn |
 | Pruebas manuales | Bruno |
 
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 clinica-api/
@@ -46,7 +46,7 @@ clinica-api/
 
 <!-- TODO: pega aquí la salida de `tree app` para detallar las carpetas -->
 
-## 🚀 Instalación y ejecución local
+## Instalación y ejecución local
 
 **Requisitos:** Python 3.10 o superior y PostgreSQL.
 
@@ -83,7 +83,7 @@ python run.py
 | `RESEND_API_KEY` | API key de Resend para enviar correos |
 | `EMAIL` | Remitente de los correos |
 
-## 📡 Módulos y endpoints
+## Módulos y endpoints
 
 | Módulo | Operaciones |
 |---|---|
@@ -102,19 +102,8 @@ La autenticación se envía en el header:
 Authorization: Bearer <token>
 ```
 
-## 🧪 Pruebas
+## Pruebas
 
 Los endpoints se probaron con **Bruno**. <!-- TODO: si exportas la colección a una carpeta del repo, menciónala aquí -->
-
-## 🔮 Próximas mejoras
-
-- Permisos por roles (administrador, médico, recepción).
-- Pruebas automáticas con pytest.
-- Documentación interactiva con Swagger/OpenAPI.
-- Dockerización del proyecto.
-- Rate limiting en el login.
-- Refresh tokens para JWT.
-
-## 👤 Autor
 
 **Kevin Ramos** · [GitHub](https://github.com/kevinramos10)
